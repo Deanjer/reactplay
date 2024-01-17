@@ -46,7 +46,7 @@ body {
 .loginForm{
     background-color: #354f52;
     width: 700px;
-    height: 1000px;
+    height: 500px;
     margin-top: 40px;
     padding: 40px;
     border-radius: 20px;
@@ -59,13 +59,13 @@ body {
 .accountLogin input{
     width: 400px;
     height: 40px;
-    margin-top: 10px;
+    margin-top: 20px;
 }
 
 .accountLogin button{
     background-color: #84a98c;
     border-radius: 50px;
-    margin-top: 20px;
+    margin-top: 70px;
     width: 400px;
     height: 50px;
 }
