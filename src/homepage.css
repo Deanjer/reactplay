@@ -37,11 +37,12 @@ body {
 .right-container {
     width: 20%;
     min-width: 400px;
+    padding: 10px;
 }
 
 .center-container {
-    flex: 1; /* This will make the center container take up the remaining space */
-    margin: 0 10px; /* Adjust the margin as needed for spacing between left and right containers */
+    flex: 1; 
+    margin: 0 10px; 
 }
 
 /* center */
@@ -82,7 +83,9 @@ body {
     margin-top: 10px;
 }
 
-
+.logo{
+    text-align: center;
+}
 /* Left */
 .logo-1{
     color: #ffff;
