@@ -52,6 +52,16 @@ body {
 }
 .center-top li{
     list-style: none;
+    width: 50px;
+    height: 50px;
+    background-color: #52796f;
+    border-radius: 50%;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffff;
+    font-size: 10px;
 }
 .search{
     width: 250px;
@@ -63,6 +73,22 @@ body {
     color: #ffff;
     font-weight: 500;
     font-size: 15px;
+}
+.center-top-underline{
+    /* width: 90%; */
+    border: 2px solid #52796f;
+    border-radius: 10px;
+    margin: auto;
+    margin-top: 10px;
+}
+
+
+/* Left */
+.logo-1{
+    color: #ffff;
+}
+.logo-2{
+    color: #84a98c;
 }
 
 /* Media queries */
