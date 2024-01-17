@@ -9,7 +9,7 @@ function App() {
 
   return (
     <>
-      <a href='./login.jsx'><button>uyvuyg</button></a>
+      <a href='./login.jsx'><button>login</button></a>
       {/* did its een placeholder niet permanent */}
     </>
   )
