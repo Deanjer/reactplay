@@ -1,0 +1,71 @@
+/* 
+#2f3e46
+#354f52
+#52796f
+#84a98c
+#cad2c5 
+*/
+
+body {
+    background-color: #52796f;
+}
+
+#root{
+    max-width: 100% !important;
+    width: 100%;
+    padding: 0 !important;
+}
+
+.container{
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+.header{
+    background-color: #2f3e46;
+    width: 100%;
+}
+
+.logo{
+    width: 240px;
+}
+
+.logo-1{
+    color: #ffff;
+}
+
+.logo-2{
+    color: #84a98c;
+}
+
+.login{
+    display: flex;
+    justify-content: center;
+}
+
+.loginForm{
+    background-color: #354f52;
+    width: 700px;
+    height: 1000px;
+    margin-top: 40px;
+    padding: 40px;
+    border-radius: 20px;
+}
+
+.accountLogin{
+    color: white;
+}
+
+.accountLogin input{
+    width: 400px;
+    height: 40px;
+    margin-top: 10px;
+}
+
+.accountLogin button{
+    background-color: #84a98c;
+    border-radius: 50px;
+    margin-top: 20px;
+    width: 400px;
+    height: 50px;
+}
