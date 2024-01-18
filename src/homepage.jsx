@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import "./homepage.css";
 import axios from "axios";
@@ -96,3 +97,4 @@ const searchArtists = async (e) => {
     </div>
   );
 }
+
