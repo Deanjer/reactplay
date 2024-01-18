@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./homepage.css";
+import axios from "axios";
 
 export default function HomePage() {
   const CLIENT_ID = "ecd7c0f4d62640d2b213d9cf4137c85f";
@@ -8,6 +9,10 @@ export default function HomePage() {
   const RESPONSE_TYPE = "token";
 
   const [token, setToken] = useState("");
+
+  const [searchKey, setSearchKey] = useState("")
+  const [artists, setArtists] = useState([])
+
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -31,6 +36,24 @@ export default function HomePage() {
     setToken("")
     window.localStorage.removeItem("token")
 }
+
+const searchArtists = async (e) => {
+    e.preventDefault()
+    const {data} = await axios.get("https://api.spotify.com/v1/search", {
+        headers: {
+            Authorization: `Bearer ${token}`
+        },
+        params: {
+            q: searchKey,
+            type: "artist"
+        }
+    })
+
+    setArtists(data.artists.items)
+
+    console.log(data);
+}
+
 
   return (
     <div className="main-container">
@@ -57,6 +80,14 @@ export default function HomePage() {
             ) : (
               <button onClick={logout}>Logout</button>
             )}
+
+            {token ?
+                <form action="" onSubmit={searchArtists}>
+                    <input type="text" onChange={ e => setSearchKey(e.target.value)}/>
+                    <button type={"submit"}>Search</button>
+                </form>
+                : <h2>Login to proceed</h2>
+            }
           </div>
         </div>
         {/* <hr className='center-top-underline'/> */}
