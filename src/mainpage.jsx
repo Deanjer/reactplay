@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import "./homepage.css";
+import "./mainpage.css";
 import axios from "axios";
 
 export default function HomePage() {
