@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./mainpage.css";
 import axios from "axios";
+import Profile from "./profile";
 
 export default function HomePage() {
   const CLIENT_ID = "ecd7c0f4d62640d2b213d9cf4137c85f";
@@ -53,36 +54,46 @@ export default function HomePage() {
     // console.log(data);
   };
 
-//   const selectArtist = async (artistId) => {
-//     const { data } = await axios.get(`https://api.spotify.com/v1/artists/${artistId}/albums`, {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//       },
-//     });
+  //   const selectArtist = async (artistId) => {
+  //     const { data } = await axios.get(`https://api.spotify.com/v1/artists/${artistId}/albums`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
 
-//     setAlbums(data.items);
-//   };
-const selectArtist = async (artistId) => {
+  //     setAlbums(data.items);
+  //   };
+  const selectArtist = async (artistId) => {
     try {
-      const { data } = await axios.get(`https://api.spotify.com/v1/artists/${artistId}/albums`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
+      const { data } = await axios.get(
+        `https://api.spotify.com/v1/artists/${artistId}/albums`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       console.log("Album Data:", data); // Add this line to log the received album data
-  
+
       setAlbums(data.items);
     } catch (error) {
       console.error("Error fetching albums:", error);
     }
   };
-  
 
   const renderArtists = () => {
     return artists.map((artist) => (
-      <div className="searchContainer" key={artist.id} onClick={() => selectArtist(artist.id)}>
-        {artist.images.length ? <img width={"25%"} src={artist.images[0].url} alt="" /> : <div>No Image</div>}
+      <div
+        className="searchContainer"
+        key={artist.id}
+        onClick={() => selectArtist(artist.id)}
+      >
+        {artist.images.length ? (
+          <img width={"25%"} src={artist.images[0].url} alt="" />
+        ) : (
+          <div>No Image</div>
+        )}
         {artist.name}
       </div>
     ));
@@ -91,7 +102,11 @@ const selectArtist = async (artistId) => {
   const renderAlbums = () => {
     return albums.map((album) => (
       <div className="albumContainer" key={album.id}>
-        {album.images.length ? <img width={"25%"} src={album.images[0].url} alt="" /> : <div>No Image</div>}
+        {album.images.length ? (
+          <img width={"25%"} src={album.images[0].url} alt="" />
+        ) : (
+          <div>No Image</div>
+        )}
         {album.name}
       </div>
     ));
@@ -109,14 +124,22 @@ const selectArtist = async (artistId) => {
             {/* <input className="search" type="text" placeholder="Search" /> */}
             {token ? (
               <form action="" onSubmit={searchArtists}>
-                <input  placeholder="Search..." className="search" type="text" onChange={(e) => setSearchKey(e.target.value)} />
-                <button  className="searchSubmit" type={"submit"}>Search</button>
+                <input
+                  placeholder="Search..."
+                  className="search"
+                  type="text"
+                  onChange={(e) => setSearchKey(e.target.value)}
+                />
+                <button className="searchSubmit" type={"submit"}>
+                  Search
+                </button>
               </form>
             ) : (
               <h2>Login to proceed</h2>
             )}
           </div>
           <div className="center-top-right">
+            
             {!token ? (
               <a
                 href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}`}
@@ -124,7 +147,12 @@ const selectArtist = async (artistId) => {
                 Login to Spotify
               </a>
             ) : (
-              <button className="logout" onClick={logout}>Logout</button>
+                <div className="div">
+              <button className="logout" onClick={logout}>
+                Logout
+              </button>
+              <Profile></Profile>
+              </div>
             )}
 
             {renderArtists()}
