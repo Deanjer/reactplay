@@ -9,10 +9,9 @@ export default function HomePage() {
   const RESPONSE_TYPE = "token";
 
   const [token, setToken] = useState("");
-
-  const [searchKey, setSearchKey] = useState("")
-  const [artists, setArtists] = useState([])
-
+  const [searchKey, setSearchKey] = useState("");
+  const [artists, setArtists] = useState([]);
+  const [albums, setAlbums] = useState([]);
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -33,51 +32,89 @@ export default function HomePage() {
   }, []);
 
   const logout = () => {
-    setToken("")
-    window.localStorage.removeItem("token")
-}
+    setToken("");
+    window.localStorage.removeItem("token");
+  };
 
-const searchArtists = async (e) => {
-    e.preventDefault()
-    const {data} = await axios.get("https://api.spotify.com/v1/search", {
+  const searchArtists = async (e) => {
+    e.preventDefault();
+    const { data } = await axios.get("https://api.spotify.com/v1/search", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: {
+        q: searchKey,
+        type: "artist",
+      },
+    });
+
+    setArtists(data.artists.items);
+
+    // console.log(data);
+  };
+
+//   const selectArtist = async (artistId) => {
+//     const { data } = await axios.get(`https://api.spotify.com/v1/artists/${artistId}/albums`, {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//       },
+//     });
+
+//     setAlbums(data.items);
+//   };
+const selectArtist = async (artistId) => {
+    try {
+      const { data } = await axios.get(`https://api.spotify.com/v1/artists/${artistId}/albums`, {
         headers: {
-            Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        params: {
-            q: searchKey,
-            type: "artist"
-        }
-    })
+      });
+  
+      console.log("Album Data:", data); // Add this line to log the received album data
+  
+      setAlbums(data.items);
+    } catch (error) {
+      console.error("Error fetching albums:", error);
+    }
+  };
+  
 
-    setArtists(data.artists.items)
+  const renderArtists = () => {
+    return artists.map((artist) => (
+      <div className="searchContainer" key={artist.id} onClick={() => selectArtist(artist.id)}>
+        {artist.images.length ? <img width={"25%"} src={artist.images[0].url} alt="" /> : <div>No Image</div>}
+        {artist.name}
+      </div>
+    ));
+  };
 
-    console.log(data);
-}
-
-const renderArtists = () => {
-    return artists.map(artist => (
-        <div className="searchContainer" key={artist.id}>
-            {artist.images.length ? <img width={"25%"} src={artist.images[0].url} alt=""/> : <div>No Image</div>}
-            {artist.name}
-        </div>
-    ))
-}
-
+  const renderAlbums = () => {
+    return albums.map((album) => (
+      <div className="albumContainer" key={album.id}>
+        {album.images.length ? <img width={"25%"} src={album.images[0].url} alt="" /> : <div>No Image</div>}
+        {album.name}
+      </div>
+    ));
+  };
 
   return (
     <div className="main-container">
       <div className="left-container">
-        <div className="logo">
-          <h1>
-            <span className="logo-1">React</span>
-            <span className="logo-2">Play</span>
-          </h1>
-        </div>
+        {/* Display albums in the left container */}
+        {renderAlbums()}
       </div>
       <div className="center-container">
         <div className="center-top">
           <div className="center-top-left">
-            <input className="search" type="text" placeholder="Search" />
+            {/* <input className="search" type="text" placeholder="Search" /> */}
+            {token ? (
+              <form action="" onSubmit={searchArtists}>
+                <input  placeholder="Search..." className="search" type="text" onChange={(e) => setSearchKey(e.target.value)} />
+                <button  className="searchSubmit" type={"submit"}>Search</button>
+              </form>
+            ) : (
+              <h2>Login to proceed</h2>
+            )}
           </div>
           <div className="center-top-right">
             {!token ? (
@@ -87,24 +124,14 @@ const renderArtists = () => {
                 Login to Spotify
               </a>
             ) : (
-              <button onClick={logout}>Logout</button>
+              <button className="logout" onClick={logout}>Logout</button>
             )}
 
-            {token ?
-                <form action="" onSubmit={searchArtists}>
-                    <input type="text" onChange={ e => setSearchKey(e.target.value)}/>
-                    <button type={"submit"}>Search</button>
-                </form>
-                : <h2>Login to proceed</h2>
-            }
-            
             {renderArtists()}
           </div>
         </div>
-        {/* <hr className='center-top-underline'/> */}
       </div>
       <div className="right-container"></div>
     </div>
   );
 }
-
