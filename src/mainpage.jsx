@@ -54,6 +54,15 @@ const searchArtists = async (e) => {
     console.log(data);
 }
 
+const renderArtists = () => {
+    return artists.map(artist => (
+        <div className="searchContainer" key={artist.id}>
+            {artist.images.length ? <img width={"25%"} src={artist.images[0].url} alt=""/> : <div>No Image</div>}
+            {artist.name}
+        </div>
+    ))
+}
+
 
   return (
     <div className="main-container">
@@ -88,6 +97,8 @@ const searchArtists = async (e) => {
                 </form>
                 : <h2>Login to proceed</h2>
             }
+            
+            {renderArtists()}
           </div>
         </div>
         {/* <hr className='center-top-underline'/> */}

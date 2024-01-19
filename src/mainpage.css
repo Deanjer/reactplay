@@ -93,6 +93,11 @@ body {
 .logo-2{
     color: #84a98c;
 }
+/* Search */
+.searchContainer{
+    display: flex;
+    
+}
 
 /* Media queries */
 @media screen and (max-width: 1340px) {
