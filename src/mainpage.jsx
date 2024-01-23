@@ -222,11 +222,14 @@ export default function HomePage() {
           <div className="search-response">{renderArtists()}</div>
           {selectedPlaylist ? (
             <div>
-              <h2>Selected Playlist</h2>
-              <img src={selectedPlaylist.images[0].url} alt="Playlist Cover" />
-              <h3>{selectedPlaylist.name}</h3>
-              <p>Owner: {selectedPlaylist.owner.display_name}</p>
 
+              <div className="playlist-selected">
+              <img src={selectedPlaylist.images[0].url} alt="Playlist Cover" />
+              <div className="playlist-selected-info">
+              <h3>{selectedPlaylist.name}</h3>
+              <p>{selectedPlaylist.owner.display_name}</p>
+              </div>
+              </div>
               {selectedPlaylist.tracks.items.map((track) => (
                 <div key={track.track.id} className="playlist-song">
                   <div className="track-item">
@@ -261,8 +264,8 @@ export default function HomePage() {
                     </div>
                     <div className="track-flex3">
                       <p>
-                        {track.track.album.name.length > 10
-                          ? track.track.album.name.slice(0, 10) + "..."
+                        {track.track.album.name.length > 15
+                          ? track.track.album.name.slice(0, 15) + "..."
                           : track.track.album.name}
                       </p>
                     </div>
