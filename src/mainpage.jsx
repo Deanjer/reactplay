@@ -13,6 +13,7 @@ export default function HomePage() {
   const [searchKey, setSearchKey] = useState("");
   const [artists, setArtists] = useState([]);
   const [albums, setAlbums] = useState([]);
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -32,6 +33,24 @@ export default function HomePage() {
     setToken(token);
   }, []);
 
+  useEffect(() => {
+    if (token) {
+      axios
+        .get("https://api.spotify.com/v1/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(({ data }) => {
+          setUserData(data);
+          console.log("User Data:", data);
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+        });
+    }
+  }, [token]);
+
   const logout = () => {
     setToken("");
     window.localStorage.removeItem("token");
@@ -50,19 +69,8 @@ export default function HomePage() {
     });
 
     setArtists(data.artists.items);
-
-    // console.log(data);
   };
 
-  //   const selectArtist = async (artistId) => {
-  //     const { data } = await axios.get(`https://api.spotify.com/v1/artists/${artistId}/albums`, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-
-  //     setAlbums(data.items);
-  //   };
   const selectArtist = async (artistId) => {
     try {
       const { data } = await axios.get(
@@ -74,8 +82,6 @@ export default function HomePage() {
         }
       );
 
-      console.log("Album Data:", data); // Add this line to log the received album data
-
       setAlbums(data.items);
     } catch (error) {
       console.error("Error fetching albums:", error);
@@ -84,24 +90,30 @@ export default function HomePage() {
 
   const renderArtists = () => {
     return artists.map((artist) => (
-      <div
-        className="searchContainer"
-        key={artist.id}
-        onClick={() => selectArtist(artist.id)}
-      >
-        {artist.images.length ? (
-          <img width={"25%"} src={artist.images[0].url} alt="" />
-        ) : (
-          <div>No Image</div>
-        )}
-        {artist.name}
+      <div className="searchContainer">
+        <div
+          className="card-container"
+          key={artist.id}
+          onClick={() => selectArtist(artist.id)}
+        >
+          {artist.images.length ? (
+            <div className="search-response-img">
+              <img src={artist.images[0].url} alt="" />
+            </div>
+          ) : (
+            <div>No Image</div>
+          )}
+          <div className="search-artist">
+          {artist.name}
+          </div>
+        </div>
       </div>
     ));
   };
 
   const renderAlbums = () => {
     return albums.map((album) => (
-      <div className="albumContainer" key={album.id}>
+      <div key={album.id}>
         {album.images.length ? (
           <img width={"25%"} src={album.images[0].url} alt="" />
         ) : (
@@ -114,15 +126,12 @@ export default function HomePage() {
 
   return (
     <div className="main-container">
-      <div className="left-container">
-        {/* Display albums in the left container */}
-        {renderAlbums()}
-      </div>
+      <div className="left-container">{renderAlbums()}</div>
       <div className="center-container">
         <div className="center-top">
           <div className="center-top-left">
-            {/* <input className="search" type="text" placeholder="Search" /> */}
             {token ? (
+                <div className="search-input">
               <form action="" onSubmit={searchArtists}>
                 <input
                   placeholder="Search..."
@@ -134,12 +143,12 @@ export default function HomePage() {
                   Search
                 </button>
               </form>
+              </div>
             ) : (
               <h2>Login to proceed</h2>
             )}
           </div>
           <div className="center-top-right">
-            
             {!token ? (
               <a
                 href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}`}
@@ -147,17 +156,18 @@ export default function HomePage() {
                 Login to Spotify
               </a>
             ) : (
-                <div className="div">
-              <button className="logout" onClick={logout}>
-                Logout
-              </button>
-              <Profile></Profile>
+              <div className="center-top-loggedin">
+                <button className="logout" onClick={logout}>
+                  Logout
+                </button>
+                <Profile userData={userData} />
               </div>
             )}
-
-            {renderArtists()}
+            
           </div>
+          
         </div>
+        <div className="search-response">{renderArtists()}</div>
       </div>
       <div className="right-container"></div>
     </div>

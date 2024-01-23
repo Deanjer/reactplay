@@ -1,47 +1,35 @@
 import { useState } from "react";
+import "./profile.css";
 
-
-export default function Profile() {
+export default function Profile({ userData }) {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
 
   const toggleDropdown = () => {
     setDropdownVisible(!isDropdownVisible);
   };
 
-
-
   return (
-    <div className="div">
+    <div className="profile-container">
       <section id="profile">
         <div className="profile-header" onClick={toggleDropdown}>
           <img
-            src="url_to_your_profile_image.jpg"  // Replace with the actual URL of your profile image
+            src={userData?.images[0]?.url || "url_to_default_profile_image.jpg"}
             alt="Profile"
             className="profile-image"
           />
         </div>
         {isDropdownVisible && (
-          <ul className="dropdown-content">
-            <li>
-              User ID: <span id="id"></span>
+          <ul className="dropdown-content dropdown-absolute">
+            <li className="dropdown-content">
+              name: <span className="dropdown-content">{userData?.display_name}</span>
             </li>
-            <li>
-              Email: <span id="email"></span>
+            <li className="dropdown-content">
+              Email: <span className="dropdown-content">{userData?.email}</span>
             </li>
-            <li>
-              Spotify URI: <a id="uri" href="#"></a>
-            </li>
-            <li>
-              Link: <a id="url" href="#"></a>
-            </li>
-            <li>
-              Profile Image: <span id="imgUrl"></span>
-            </li>
+            {/* Add more user information as needed */}
           </ul>
         )}
       </section>
     </div>
   );
 }
-
-  
