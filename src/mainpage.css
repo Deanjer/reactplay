@@ -123,13 +123,15 @@ body {
     color: #ffff;
     transition: background-color 0.5s, transform 0.5s;
 }
-.searchContainer:hover{
+
+.searchContainer:hover {
     transform: scale(1.01);
     background-color: #33434c;
     cursor: pointer;
 
 }
-.search-response-img img{
+
+.search-response-img img {
     width: 90%;
     height: auto;
     margin-top: 10px;
@@ -149,19 +151,23 @@ body {
     font-weight: 500;
     font-size: 15px;
 }
-.search-response{
+
+.search-response {
     width: 100%;
     display: flex;
     flex-wrap: wrap;
 }
-.search-artist{
+
+.search-artist {
     padding: 10px;
     /* margin-bottom: auto; */
     align-self: flex-end;
 }
-.search-input{
+
+.search-input {
     margin-left: 10px;
 }
+
 /* log in/out */
 .logout {
     width: 60px;
@@ -173,21 +179,64 @@ body {
     transition: background-color 0.1s;
     margin-right: 50px;
 }
-.logout:hover{
+
+.logout:hover {
     background-color: #52796f;
     color: #ffff;
     cursor: pointer;
     transform: scale(1.02);
 }
-.center-top-loggedin{
+
+.center-top-loggedin {
     display: flex;
     justify-content: space-between;
     margin-right: 10px;
 
 }
-.card-container{
+
+.card-container {
     display: flex;
     flex-direction: column;
+}
+
+/* center playlist */
+.playlist-song {
+    height: auto;
+    padding: 5px;
+    width: 90%;
+    display: flex;
+    color: #ffff;
+}
+
+.playlist-song img {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+}
+
+.track-item {
+    width: 100%;
+   display: flex;
+   justify-content: space-between;
+}
+.track-flex1,
+.track-flex3,
+.track-flex4
+{
+ width: 33%;
+}
+
+.track-flex3,
+.track-flex4
+{
+    /* display: flex; */
+  justify-content: flex-end;
+}
+.track-info {
+    display: flex;
+}
+.track-flex1{
+    display: flex;
 }
 /* Media queries */
 @media screen and (max-width: 1340px) {

@@ -104,9 +104,7 @@ export default function HomePage() {
           ) : (
             <div>No Image</div>
           )}
-          <div className="search-artist">
-          {artist.name}
-          </div>
+          <div className="search-artist">{artist.name}</div>
         </div>
       </div>
     ));
@@ -125,14 +123,14 @@ export default function HomePage() {
     ));
   };
 
-// playlist
-const [playlistData, setPlaylistData] = useState(null)
+  // playlist
+  const [playlistData, setPlaylistData] = useState(null);
+  const [selectedPlaylist, setSelectedPlaylist] = useState(null);
 
-useEffect(() => {
+  useEffect(() => {
     if (token) {
-      // Replace 'playlist_id' with the actual playlist ID
-      const playlistId = '3IAIcHaDz290IQm92QLE55';
-      
+      const playlistId = "3IAIcHaDz290IQm92QLE55";
+
       axios
         .get(`https://api.spotify.com/v1/playlists/${playlistId}`, {
           headers: {
@@ -146,37 +144,58 @@ useEffect(() => {
         .catch((error) => {
           console.error("Error fetching playlist data:", error.message);
         });
-        console.log("Token:", token);
-        console.log("Playlist ID:", playlistId);
+      console.log("Token:", token);
+      console.log("Playlist ID:", playlistId);
     }
-    
   }, [token]);
-  
-  
-  
 
+  const handlePlaylistSelection = async (playlistId) => {
+    try {
+      const { data } = await axios.get(
+        `https://api.spotify.com/v1/playlists/${playlistId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setSelectedPlaylist(data);
+    } catch (error) {
+      console.error("Error fetching playlist data:", error.message);
+    }
+  };
+
+  const formatDuration = (durationMs) => {
+    const minutes = Math.floor(durationMs / 60000);
+    const seconds = ((durationMs % 60000) / 1000).toFixed(0);
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  };
   return (
     <div className="main-container">
       <div className="left-container">
-      <Playlist playlist={playlistData}></Playlist>
-        
-        </div>
+        {/* <Playlist playlist={playlistData}></Playlist> */}
+        <Playlist
+          playlist={playlistData}
+          onSelectPlaylist={handlePlaylistSelection}
+        />
+      </div>
       <div className="center-container">
         <div className="center-top">
           <div className="center-top-left">
             {token ? (
-                <div className="search-input">
-              <form action="" onSubmit={searchArtists}>
-                <input
-                  placeholder="Search..."
-                  className="search"
-                  type="text"
-                  onChange={(e) => setSearchKey(e.target.value)}
-                />
-                <button className="searchSubmit" type={"submit"}>
-                  Search
-                </button>
-              </form>
+              <div className="search-input">
+                <form action="" onSubmit={searchArtists}>
+                  <input
+                    placeholder="Search..."
+                    className="search"
+                    type="text"
+                    onChange={(e) => setSearchKey(e.target.value)}
+                  />
+                  <button className="searchSubmit" type={"submit"}>
+                    Search
+                  </button>
+                </form>
               </div>
             ) : (
               <h2>Login to proceed</h2>
@@ -197,17 +216,72 @@ useEffect(() => {
                 <Profile userData={userData} />
               </div>
             )}
-            
           </div>
-          
         </div>
-        <div className="search-response">{renderArtists()}</div>
+        <div className="div">
+          <div className="search-response">{renderArtists()}</div>
+          {selectedPlaylist ? (
+            <div>
+              <h2>Selected Playlist</h2>
+              <img src={selectedPlaylist.images[0].url} alt="Playlist Cover" />
+              <h3>{selectedPlaylist.name}</h3>
+              <p>Owner: {selectedPlaylist.owner.display_name}</p>
+
+              {selectedPlaylist.tracks.items.map((track) => (
+                <div key={track.track.id} className="playlist-song">
+                  <div className="track-item">
+                    <div className="track-flex1">
+                      {track.track.album.images.length ? (
+                        <img
+                          src={track.track.album.images[0].url}
+                          alt="Album Cover"
+                          className="album-cover"
+                        />
+                      ) : (
+                        <div>No Image</div>
+                      )}
+                      <div className="track-info">
+                        <div className="track-flex2">
+                          <p>
+                            {track.track.name.length > 10
+                              ? track.track.name.slice(0, 10) + "..."
+                              : track.track.name}
+                          </p>
+                          <p>
+                            {track.track.artists
+                              .map((artist) =>
+                                artist.name.length > 10
+                                  ? artist.name.slice(0, 10) + "..."
+                                  : artist.name
+                              )
+                              .join(", ")}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="track-flex3">
+                      <p>
+                        {track.track.album.name.length > 10
+                          ? track.track.album.name.slice(0, 10) + "..."
+                          : track.track.album.name}
+                      </p>
+                    </div>
+                    <div className="track-flex4">
+                      <p>{formatDuration(track.track.duration_ms)}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className=""></div>
+          )}
+        </div>
       </div>
       <div className="right-container">
-      {/* <Playlist playlist={}></Playlist> */}
-      {renderAlbums()}
+        {/* <Playlist playlist={}></Playlist> */}
+        {renderAlbums()}
       </div>
     </div>
   );
 }
-
