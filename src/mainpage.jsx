@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./mainpage.css";
 import axios from "axios";
 import Profile from "./profile";
+import Playlist from "./playlist";
 
 export default function HomePage() {
   const CLIENT_ID = "ecd7c0f4d62640d2b213d9cf4137c85f";
@@ -124,9 +125,42 @@ export default function HomePage() {
     ));
   };
 
+// playlist
+const [playlistData, setPlaylistData] = useState(null)
+
+useEffect(() => {
+    if (token) {
+      // Replace 'playlist_id' with the actual playlist ID
+      const playlistId = '3IAIcHaDz290IQm92QLE55';
+      
+      axios
+        .get(`https://api.spotify.com/v1/playlists/${playlistId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(({ data }) => {
+          setPlaylistData(data);
+          console.log("Playlist Data:", data);
+        })
+        .catch((error) => {
+          console.error("Error fetching playlist data:", error.message);
+        });
+        console.log("Token:", token);
+        console.log("Playlist ID:", playlistId);
+    }
+    
+  }, [token]);
+  
+  
+  
+
   return (
     <div className="main-container">
-      <div className="left-container">{renderAlbums()}</div>
+      <div className="left-container">
+      <Playlist playlist={playlistData}></Playlist>
+        
+        </div>
       <div className="center-container">
         <div className="center-top">
           <div className="center-top-left">
@@ -169,7 +203,11 @@ export default function HomePage() {
         </div>
         <div className="search-response">{renderArtists()}</div>
       </div>
-      <div className="right-container"></div>
+      <div className="right-container">
+      {/* <Playlist playlist={}></Playlist> */}
+      {renderAlbums()}
+      </div>
     </div>
   );
 }
+
