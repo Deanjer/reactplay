@@ -17,6 +17,7 @@
 body {
     background-color: #2f3e46;
     padding: 10px;
+    overflow: hidden;
 }
 
 .main-container {
@@ -29,7 +30,7 @@ body {
 .left-container,
 .right-container,
 .center-container {
-    height: 100vh;
+    height: 90vh;
     background-color: #354f52;
     border-radius: 10px;
     border: none;
@@ -41,7 +42,9 @@ body {
     min-width: 400px;
     padding: 10px;
 }
-
+.left-container{
+    overflow: auto;
+}
 .center-container {
     flex: 1;
     margin: 0 10px;
