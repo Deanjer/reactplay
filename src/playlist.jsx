@@ -6,23 +6,29 @@ function Playlist({ playlist, onSelectPlaylist }) {
       return <div>Loading playlist...</div>;
     }
   
-    const handlePlaylistClick = () => {
-      onSelectPlaylist(playlist.id); // Pass the playlist ID to the selection function
-    };
+    const handlePlaylistClick = (playlistId) => {
+        onSelectPlaylist(playlistId); // Pass the playlist ID to the selection function
+      };
 
   return (
-    <div className="div" onClick={handlePlaylistClick}>
-      <div className="playlist-card">
-        {playlist.images.length > 0 && (
-          <img className="playlist-cover" src={playlist.images[0].url} alt="Playlist Cover" />
-        )}
-        <div className="playlist-info">
-          <h1>{playlist.name}</h1>
-          <p>{playlist.owner.display_name}</p>
-        </div>
-      </div>
-      {/* Add more playlist cards as needed */}
-    </div>
+    <>
+    {playlist.items.map(function(data){
+        return(
+            <div className="div" onClick={() => handlePlaylistClick(data.id)}>
+            <div className="playlist-card">
+              {data.images.length > 0 && (
+                <img className="playlist-cover" src={data.images[0].url} alt="Playlist Cover" />
+              )}
+              <div className="playlist-info">
+                <h1>{data.name}</h1>
+                <p>{data.owner.display_name}</p>
+              </div>
+            </div>
+            {/* Add more playlist cards as needed */}
+          </div>
+        )
+    })}
+   </>
   );
 }
 

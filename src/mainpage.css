@@ -260,6 +260,9 @@ body {
 .track-flex1{
     display: flex;
 }
+.seperate{
+    border: 5px solid #2f3e46;
+}
 /* Media queries */
 @media screen and (max-width: 1340px) {
     .left-container {

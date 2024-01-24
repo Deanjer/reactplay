@@ -5,16 +5,21 @@ import Profile from "./profile";
 import Playlist from "./playlist";
 
 export default function HomePage() {
-  const CLIENT_ID = "ecd7c0f4d62640d2b213d9cf4137c85f";
+  const CLIENT_ID = "9853bde8608449bf9d43e7694001d59a";
   const REDIRECT_URI = "http://localhost:5173/";
   const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
   const RESPONSE_TYPE = "token";
+  const scope = 'playlist-read-private user-read-email playlist-read-collaborative';
+
 
   const [token, setToken] = useState("");
   const [searchKey, setSearchKey] = useState("");
   const [artists, setArtists] = useState([]);
   const [albums, setAlbums] = useState([]);
   const [userData, setUserData] = useState(null);
+  const [playlistData, setPlaylistData] = useState(null);
+  const [selectedPlaylist, setSelectedPlaylist] = useState(null);
+  const [activeComponent, setActiveComponent] = useState("artists");
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -57,8 +62,15 @@ export default function HomePage() {
     window.localStorage.removeItem("token");
   };
 
+  const resetSelectedPlaylist = () => {
+    setSelectedPlaylist(null);
+    setActiveComponent("artists");
+  };
+
   const searchArtists = async (e) => {
     e.preventDefault();
+    resetSelectedPlaylist();
+
     const { data } = await axios.get("https://api.spotify.com/v1/search", {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -70,6 +82,7 @@ export default function HomePage() {
     });
 
     setArtists(data.artists.items);
+    setActiveComponent("artists");
   };
 
   const selectArtist = async (artistId) => {
@@ -84,17 +97,35 @@ export default function HomePage() {
       );
 
       setAlbums(data.items);
+      setActiveComponent("albums");
     } catch (error) {
       console.error("Error fetching albums:", error);
     }
   };
 
+  const handlePlaylistSelection = async (playlistId) => {
+    try {
+      const { data } = await axios.get(
+        `https://api.spotify.com/v1/playlists/${playlistId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setSelectedPlaylist(data);
+      setActiveComponent("playlist");
+    } catch (error) {
+      console.error("Error fetching playlist data:", error.message);
+    }
+  };
+
   const renderArtists = () => {
     return artists.map((artist) => (
-      <div className="searchContainer">
+      <div className="searchContainer" key={artist.id}>
         <div
           className="card-container"
-          key={artist.id}
           onClick={() => selectArtist(artist.id)}
         >
           {artist.images.length ? (
@@ -123,16 +154,14 @@ export default function HomePage() {
     ));
   };
 
-  // playlist
-  const [playlistData, setPlaylistData] = useState(null);
-  const [selectedPlaylist, setSelectedPlaylist] = useState(null);
-
   useEffect(() => {
     if (token) {
       const playlistId = "3IAIcHaDz290IQm92QLE55";
+    //   let token = window.localStorage.getItem("token");
+      console.log(token)
 
       axios
-        .get(`https://api.spotify.com/v1/playlists/${playlistId}`, {
+        .get(`https://api.spotify.com/v1/me/playlists`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -149,35 +178,19 @@ export default function HomePage() {
     }
   }, [token]);
 
-  const handlePlaylistSelection = async (playlistId) => {
-    try {
-      const { data } = await axios.get(
-        `https://api.spotify.com/v1/playlists/${playlistId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setSelectedPlaylist(data);
-    } catch (error) {
-      console.error("Error fetching playlist data:", error.message);
-    }
-  };
-
   const formatDuration = (durationMs) => {
     const minutes = Math.floor(durationMs / 60000);
     const seconds = ((durationMs % 60000) / 1000).toFixed(0);
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
+
   return (
     <div className="main-container">
       <div className="left-container">
-        {/* <Playlist playlist={playlistData}></Playlist> */}
         <Playlist
           playlist={playlistData}
           onSelectPlaylist={handlePlaylistSelection}
+          
         />
       </div>
       <div className="center-container">
@@ -204,8 +217,7 @@ export default function HomePage() {
           <div className="center-top-right">
             {!token ? (
               <a
-                href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}`}
-              >
+              href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${scope}`}              >
                 Login to Spotify
               </a>
             ) : (
@@ -218,17 +230,21 @@ export default function HomePage() {
             )}
           </div>
         </div>
-        <div className="div">
-          <div className="search-response">{renderArtists()}</div>
-          {selectedPlaylist ? (
-            <div>
+        <hr className="seperate"/>
 
+        <div className="div">
+          {activeComponent === "artists" && (
+            <div className="search-response">{renderArtists()}</div>
+          )}
+
+          {activeComponent === "playlist" && selectedPlaylist && (
+            <div>
               <div className="playlist-selected">
-              <img src={selectedPlaylist.images[0].url} alt="Playlist Cover" />
-              <div className="playlist-selected-info">
-              <h3>{selectedPlaylist.name}</h3>
-              <p>{selectedPlaylist.owner.display_name}</p>
-              </div>
+                <img src={selectedPlaylist.images[0].url} alt="Playlist Cover" />
+                <div className="playlist-selected-info">
+                  <h3>{selectedPlaylist.name}</h3>
+                  <p>{selectedPlaylist.owner.display_name}</p>
+                </div>
               </div>
               {selectedPlaylist.tracks.items.map((track) => (
                 <div key={track.track.id} className="playlist-song">
@@ -276,15 +292,14 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-          ) : (
-            <div className=""></div>
+          )}
+
+          {activeComponent === "albums" && (
+            <div>{renderAlbums()}</div>
           )}
         </div>
       </div>
-      <div className="right-container">
-        {/* <Playlist playlist={}></Playlist> */}
-        {renderAlbums()}
-      </div>
+      <div className="right-container"></div>
     </div>
   );
 }
