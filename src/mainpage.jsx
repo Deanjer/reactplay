@@ -9,7 +9,7 @@ export default function HomePage() {
   const REDIRECT_URI = "http://localhost:5173/";
   const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
   const RESPONSE_TYPE = "token";
-  const scope = 'playlist-read-private user-read-email playlist-read-collaborative';
+  const scope = 'playlist-read-private user-read-email playlist-read-collaborative user-read-playback-state';
 
 
   const [token, setToken] = useState("");
@@ -143,13 +143,15 @@ export default function HomePage() {
 
   const renderAlbums = () => {
     return albums.map((album) => (
-      <div key={album.id}>
+      <div className="album" key={album.id}>
         {album.images.length ? (
           <img width={"25%"} src={album.images[0].url} alt="" />
         ) : (
           <div>No Image</div>
         )}
+        <div className="album-text">
         {album.name}
+        </div>
       </div>
     ));
   };
@@ -295,7 +297,7 @@ export default function HomePage() {
           )}
 
           {activeComponent === "albums" && (
-            <div>{renderAlbums()}</div>
+            <div className="albums-container">{renderAlbums()}</div>
           )}
         </div>
       </div>

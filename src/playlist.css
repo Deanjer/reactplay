@@ -6,14 +6,20 @@
 .playlist-card{
     display: flex;
     font-size: 10px;
-    color: #ffff;
+    color: #FFFF;
     height: auto;
     width: 95%;
     padding: 10px;
     border-radius: 10px;
 }
+.playlist-info h1{
+    font-size: 15px;
+}
+.playlist-info p{
+    font-size: 10px;
+}
 .playlist-card:hover{
-    background-color: rgba(181, 180, 180, 0.026);
+    background-color: rgb(240, 165, 14);
     cursor: pointer;
 }
 .playlist-cover{
