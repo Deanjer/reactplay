@@ -19,8 +19,9 @@ export default function Profile({ userData }) {
           />
         </div>
         {isDropdownVisible && (
+            <div className="dorpdown-container">
           <ul className="dropdown-content dropdown-absolute">
-            <li className="dropdown-content">
+            <li className="dropdown-content mt">
               name: <span className="dropdown-content">{userData?.display_name}</span>
             </li>
             <li className="dropdown-content">
@@ -28,6 +29,7 @@ export default function Profile({ userData }) {
             </li>
             {/* Add more user information as needed */}
           </ul>
+          </div>
         )}
       </section>
     </div>

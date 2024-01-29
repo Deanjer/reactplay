@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./mainpage.css";
 import axios from "axios";
+import homesvg from "./assets/homesvg.svg";
 import Profile from "./profile";
 import Playlist from "./playlist";
 
@@ -9,8 +10,8 @@ export default function HomePage() {
   const REDIRECT_URI = "http://localhost:5173/";
   const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
   const RESPONSE_TYPE = "token";
-  const scope = 'playlist-read-private user-read-email playlist-read-collaborative user-read-playback-state';
-
+  const scope =
+    "playlist-read-private user-read-email playlist-read-collaborative user-read-playback-state";
 
   const [token, setToken] = useState("");
   const [searchKey, setSearchKey] = useState("");
@@ -124,10 +125,7 @@ export default function HomePage() {
   const renderArtists = () => {
     return artists.map((artist) => (
       <div className="searchContainer" key={artist.id}>
-        <div
-          className="card-container"
-          onClick={() => selectArtist(artist.id)}
-        >
+        <div className="card-container" onClick={() => selectArtist(artist.id)}>
           {artist.images.length ? (
             <div className="search-response-img">
               <img src={artist.images[0].url} alt="" />
@@ -149,18 +147,49 @@ export default function HomePage() {
         ) : (
           <div>No Image</div>
         )}
-        <div className="album-text">
-        {album.name}
-        </div>
+        <div className="album-text">{album.name}</div>
       </div>
     ));
   };
+  const [activeHomeComponent, setActiveHomeComponent] = useState("homepage");
+
+  const showHomePage = () => {
+    setActiveComponent("homepage");
+  };
+
+  const renderHomePage = () => (
+    <div className="homepage">
+      <h2>Welcome to the Homepage!</h2>
+
+      {/* Trending Songs */}
+      <div>
+        <h3>Trending Songs</h3>
+        {trendingSongs.map((playlist) => (
+          <div key={playlist.id}>
+            <img src={playlist.images[0].url} alt={playlist.name} />
+            <p>{playlist.name}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* New Releases */}
+      <div>
+        <h3>New Releases</h3>
+        {newReleases.map((album) => (
+          <div key={album.id}>
+            <img src={album.images[0].url} alt={album.name} />
+            <p>{album.name}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   useEffect(() => {
     if (token) {
       const playlistId = "3IAIcHaDz290IQm92QLE55";
-    //   let token = window.localStorage.getItem("token");
-      console.log(token)
+      //   let token = window.localStorage.getItem("token");
+      console.log(token);
 
       axios
         .get(`https://api.spotify.com/v1/me/playlists`, {
@@ -186,13 +215,58 @@ export default function HomePage() {
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
+  const [trendingSongs, setTrendingSongs] = useState([]);
+  const [newReleases, setNewReleases] = useState([]);
+
+  useEffect(() => {
+    if (token) {
+      // Fetch the first 5 trending songs
+      axios
+        .get(
+          "https://api.spotify.com/v1/browse/categories/toplists/playlists",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            params: {
+              limit: 5,
+            },
+          }
+        )
+        .then(({ data }) => {
+          setTrendingSongs(data.playlists.items);
+          console.log("Trending Songs Data:", data);
+        })
+        .catch((error) => {
+          console.error("Error fetching trending songs data:", error.message);
+        });
+
+      // Fetch the first 5 new releases
+      axios
+        .get("https://api.spotify.com/v1/browse/new-releases", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: {
+            limit: 5,
+          },
+        })
+        .then(({ data }) => {
+          setNewReleases(data.albums.items);
+          console.log("New Releases Data:", data);
+        })
+        .catch((error) => {
+          console.error("Error fetching new releases data:", error.message);
+        });
+    }
+  }, [token]);
+
   return (
     <div className="main-container">
       <div className="left-container">
         <Playlist
           playlist={playlistData}
           onSelectPlaylist={handlePlaylistSelection}
-          
         />
       </div>
       <div className="center-container">
@@ -200,6 +274,17 @@ export default function HomePage() {
           <div className="center-top-left">
             {token ? (
               <div className="search-input">
+                <button className="homebutton" onClick={showHomePage}>
+                  <svg
+                    id="homebuttonsvg"
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24"
+                    viewBox="0 -960 960 960"
+                    width="24"
+                  >
+                    <path d="M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z" />
+                  </svg>
+                </button>
                 <form action="" onSubmit={searchArtists}>
                   <input
                     placeholder="Search..."
@@ -207,9 +292,6 @@ export default function HomePage() {
                     type="text"
                     onChange={(e) => setSearchKey(e.target.value)}
                   />
-                  <button className="searchSubmit" type={"submit"}>
-                    Search
-                  </button>
                 </form>
               </div>
             ) : (
@@ -219,7 +301,8 @@ export default function HomePage() {
           <div className="center-top-right">
             {!token ? (
               <a
-              href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${scope}`}              >
+                href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${scope}`}
+              >
                 Login to Spotify
               </a>
             ) : (
@@ -232,7 +315,7 @@ export default function HomePage() {
             )}
           </div>
         </div>
-        <hr className="seperate"/>
+        <hr className="seperate" />
 
         <div className="div">
           {activeComponent === "artists" && (
@@ -242,7 +325,10 @@ export default function HomePage() {
           {activeComponent === "playlist" && selectedPlaylist && (
             <div>
               <div className="playlist-selected">
-                <img src={selectedPlaylist.images[0].url} alt="Playlist Cover" />
+                <img
+                  src={selectedPlaylist.images[0].url}
+                  alt="Playlist Cover"
+                />
                 <div className="playlist-selected-info">
                   <h3>{selectedPlaylist.name}</h3>
                   <p>{selectedPlaylist.owner.display_name}</p>
@@ -299,6 +385,8 @@ export default function HomePage() {
           {activeComponent === "albums" && (
             <div className="albums-container">{renderAlbums()}</div>
           )}
+
+          {activeComponent === "homepage" && renderHomePage()}
         </div>
       </div>
       <div className="right-container"></div>
