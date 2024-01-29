@@ -105,10 +105,9 @@ const SpotifyPlayer = () => {
       {selectedSongDetails && (
         <div>
           <h2>Selected Song Details</h2>
-          <img src={selectedSongDetails.album.images[0].url} alt="Album Cover" />
+          <img src={selectedSongDetails.album.images[1].url} alt="Album Cover" />
           <p>{`Song: ${selectedSongDetails.name}`}</p>
-          <p>{`Album: ${selectedSongDetails.album.name}`}</p>
-          
+          <p>{`Artist: ${selectedSongDetails.artists.map(artist => artist.name).join(', ')}`}</p>
         </div>
       )}
     </div>
