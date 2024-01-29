@@ -1,11 +1,10 @@
 import React from 'react';
-import PlayerSelector from './PlayerSelector';
+import SpotifyPlayer from './spotifyPlayer';
 
 const Test = () => {
   return (
     <div>
-      <h1>My Spotify App</h1>
-      <PlayerSelector />
+      <SpotifyPlayer />
     </div>
   );
 };
