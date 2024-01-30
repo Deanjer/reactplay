@@ -14,7 +14,7 @@ function Playlist({ playlist, onSelectPlaylist }) {
     <>
     {playlist.items.map(function(data){
         return(
-            <div className="div" onClick={() => handlePlaylistClick(data.id)}>
+            <div className="playlist-container" onClick={() => handlePlaylistClick(data.id)}>
             <div className="playlist-card">
               {data.images.length > 0 && (
                 <img className="playlist-cover" src={data.images[0].url} alt="Playlist Cover" />

@@ -20,7 +20,7 @@ export default function HomePage() {
   const [userData, setUserData] = useState(null);
   const [playlistData, setPlaylistData] = useState(null);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
-  const [activeComponent, setActiveComponent] = useState("artists");
+  const [activeComponent, setActiveComponent] = useState("homepage");
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -58,10 +58,7 @@ export default function HomePage() {
     }
   }, [token]);
 
-  const logout = () => {
-    setToken("");
-    window.localStorage.removeItem("token");
-  };
+  
 
   const resetSelectedPlaylist = () => {
     setSelectedPlaylist(null);
@@ -159,13 +156,12 @@ export default function HomePage() {
 
   const renderHomePage = () => (
     <div className="homepage">
-      <h2>Welcome to the Homepage!</h2>
 
-      {/* Trending Songs */}
-      <div>
-        <h3>Trending Songs</h3>
+      {/* Trending */}
+      <h3>Trending playlists</h3>
+      <div className="home-flex">
         {trendingSongs.map((playlist) => (
-          <div key={playlist.id}>
+          <div className="home-container" key={playlist.id}>
             <img src={playlist.images[0].url} alt={playlist.name} />
             <p>{playlist.name}</p>
           </div>
@@ -173,10 +169,10 @@ export default function HomePage() {
       </div>
 
       {/* New Releases */}
-      <div>
-        <h3>New Releases</h3>
+      <h3>New Releases</h3>
+      <div className="home-flex">
         {newReleases.map((album) => (
-          <div key={album.id}>
+          <div className="home-container" key={album.id}>
             <img src={album.images[0].url} alt={album.name} />
             <p>{album.name}</p>
           </div>
@@ -229,7 +225,7 @@ export default function HomePage() {
               Authorization: `Bearer ${token}`,
             },
             params: {
-              limit: 5,
+              limit: 10,
             },
           }
         )
@@ -248,7 +244,7 @@ export default function HomePage() {
             Authorization: `Bearer ${token}`,
           },
           params: {
-            limit: 5,
+            limit: 10,
           },
         })
         .then(({ data }) => {
@@ -260,6 +256,8 @@ export default function HomePage() {
         });
     }
   }, [token]);
+
+
 
   return (
     <div className="main-container">
@@ -307,10 +305,7 @@ export default function HomePage() {
               </a>
             ) : (
               <div className="center-top-loggedin">
-                <button className="logout" onClick={logout}>
-                  Logout
-                </button>
-                <Profile userData={userData} />
+                <Profile userData={userData} setToken={setToken} />
               </div>
             )}
           </div>

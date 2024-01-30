@@ -1,11 +1,16 @@
 import { useState } from "react";
 import "./profile.css";
 
-export default function Profile({ userData }) {
+export default function Profile({ userData, setToken }) {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
 
   const toggleDropdown = () => {
     setDropdownVisible(!isDropdownVisible);
+  };
+
+  const logout = () => {
+    setToken("");
+    window.localStorage.removeItem("token");
   };
 
   return (
@@ -24,10 +29,15 @@ export default function Profile({ userData }) {
             <li className="dropdown-content mt">
               name: <span className="dropdown-content">{userData?.display_name}</span>
             </li>
+            <hr />
             <li className="dropdown-content">
               Email: <span className="dropdown-content">{userData?.email}</span>
             </li>
-            {/* Add more user information as needed */}
+            <hr />
+            <li><button className="logout" onClick={logout}>
+                  Logout
+                </button></li>
+                
           </ul>
           </div>
         )}

@@ -27,3 +27,12 @@
     height: 50px;
     border-radius: 5px;
 }
+@media screen and (max-width: 1340px) {
+    .playlist-info{
+        display: none;
+    }
+    .playlist-container{
+        display: flex;
+        justify-content: center;
+    }
+}
