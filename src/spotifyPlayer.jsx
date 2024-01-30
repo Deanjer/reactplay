@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
+// import HomePage from './mainpage';
 
 const SpotifyPlayer = () => {
-
   const CLIENT_ID = "9853bde8608449bf9d43e7694001d59a";
   const REDIRECT_URI = "http://localhost:5173/";
   const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
   const RESPONSE_TYPE = "token";
   const scope = 'playlist-read-private user-read-email playlist-read-collaborative user-read-playback-state';
 
-
   const [token, setToken] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
+  const [selectedSongDetails, setSelectedSongDetails] = useState(null);
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -30,16 +30,7 @@ const SpotifyPlayer = () => {
     setToken(token);
   }, []);
 
-
-
-  // const [token, setToken] = useState(null);
   const [songs, setSongs] = useState([]);
-  const [sampleSongs] = useState([
-    { id: '1rDgAHDX95RmylxjgVW9tN?si=6c1c6dc4c1144430', name: 'Song 1' },
-    { id: '2l2yRJWgMiJkfPbRNiuC25?si=3ff359552c094c87', name: 'Song 2' },
-    { id: '5SZWCBRpEujCFwETNvfxzz?si=c6fa4373512a4482', name: 'Song 3' }
-    // Add more sample songs as needed
-  ]);
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -55,19 +46,41 @@ const SpotifyPlayer = () => {
   useEffect(() => {
     // Simulate fetching user's playlists from Spotify after obtaining the token
     if (token) {
-      setSongs(sampleSongs);
-    }
-  }, [token, sampleSongs]);
+      // Fetch sample songs dynamically
+      const fetchSampleSongs = async () => {
+        const sampleSongIds = [
+          '1rDgAHDX95RmylxjgVW9tN?si=6c1c6dc4c1144430',
+          '2l2yRJWgMiJkfPbRNiuC25?si=3ff359552c094c87',
+          '5SZWCBRpEujCFwETNvfxzz?si=c6fa4373512a4482',
+        ];
 
-  const [selectedSongDetails, setSelectedSongDetails] = useState(null);
+        const sampleSongPromises = sampleSongIds.map(async (songId) => {
+          const response = await fetch(`https://api.spotify.com/v1/tracks/${songId}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch song details');
+          }
+
+          const data = await response.json();
+          return { id: songId, name: data.name };
+        });
+
+        const sampleSongData = await Promise.all(sampleSongPromises);
+        setSongs(sampleSongData);
+      };
+
+      fetchSampleSongs();
+    }
+  }, [token]);
 
   const handleSongClick = async (song) => {
     try {
-
-      console.log(song.id);
-      
       const endpoint = `https://api.spotify.com/v1/tracks/${song.id}`;
-
       const response = await fetch(endpoint, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -89,27 +102,34 @@ const SpotifyPlayer = () => {
     }
   };
 
-
   return (
-    <div>
-      <h1>Spotify Song Player</h1>
-      <ul>
-        {songs.map((song) => (
-          <li key={song.id} onClick={() => handleSongClick(song)}>
-            {song.name}
-          </li>
-        ))}
-      </ul>
+    <div style={{ display: 'flex' }}>
+      {/* Container for the list of songs */}
+      <div style={{ flex: 1 }}>
 
-      {/* Display the album cover if a song is selected */}
-      {selectedSongDetails && (
-        <div>
-          <h2>Selected Song Details</h2>
-          <img src={selectedSongDetails.album.images[1].url} alt="Album Cover" />
-          <p>{`Song: ${selectedSongDetails.name}`}</p>
-          <p>{`Artist: ${selectedSongDetails.artists.map(artist => artist.name).join(', ')}`}</p>
-        </div>
-      )}
+        
+
+        <h1>Spotify Song List</h1>
+        <ul>
+          {songs.map((song) => (
+            <li key={song.id} onClick={() => handleSongClick(song)}>
+              {song.name}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Container for the details of the selected song */}
+      <div style={{ flex: 1 }}>
+        {selectedSongDetails && (
+          <div>
+            <h2>Selected Song Details</h2>
+            <img src={selectedSongDetails.album.images[1].url} alt="Album Cover" />
+            <p>{`Song: ${selectedSongDetails.name}`}</p>
+            <p>{`Artist: ${selectedSongDetails.artists.map(artist => artist.name).join(', ')}`}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
