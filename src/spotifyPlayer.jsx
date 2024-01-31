@@ -52,6 +52,7 @@ const SpotifyPlayer = () => {
           '1rDgAHDX95RmylxjgVW9tN?si=6c1c6dc4c1144430',
           '2l2yRJWgMiJkfPbRNiuC25?si=3ff359552c094c87',
           '5SZWCBRpEujCFwETNvfxzz?si=c6fa4373512a4482',
+          '5awDvzxWfd53SSrsRZ8pXO?si=0b523876d87e4bb8',
         ];
 
         const sampleSongPromises = sampleSongIds.map(async (songId) => {

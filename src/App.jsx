@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-//import HomePage from './mainpage';
-import Test from './text';
+import HomePage from './mainpage';
+// import Test from './text';
 
 
 
@@ -8,7 +8,7 @@ function App() {
 
   return (
         <div className="App">
-          <Test></Test>
+          <HomePage></HomePage>
         </div>
   );
 }
