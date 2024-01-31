@@ -53,6 +53,7 @@ body {
     margin: 0 10px;
     overflow: auto;
     height: calc(100vh - 20px);
+    overflow-x: hidden;
 }
 
 /* center */
