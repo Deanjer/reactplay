@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
-import "./mainpage.css";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import SpotifyPlayer from "react-spotify-web-playback";
+import "./mainpage.css";
 import homesvg from "./assets/homesvg.svg";
 import Profile from "./profile";
 import Playlist from "./playlist";
@@ -21,6 +22,7 @@ export default function HomePage() {
   const [playlistData, setPlaylistData] = useState(null);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [activeComponent, setActiveComponent] = useState("homepage");
+  const [playbackTrack, setPlaybackTrack] = useState(null);
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -57,11 +59,6 @@ export default function HomePage() {
         });
     }
   }, [token]);
-
-  const logout = () => {
-    setToken("");
-    window.localStorage.removeItem("token");
-  };
 
   const resetSelectedPlaylist = () => {
     setSelectedPlaylist(null);
@@ -125,7 +122,10 @@ export default function HomePage() {
   const renderArtists = () => {
     return artists.map((artist) => (
       <div className="searchContainer" key={artist.id}>
-        <div className="card-container" onClick={() => selectArtist(artist.id)}>
+        <div
+          className="card-container"
+          onClick={() => selectArtist(artist.id)}
+        >
           {artist.images.length ? (
             <div className="search-response-img">
               <img src={artist.images[0].url} alt="" />
@@ -151,6 +151,7 @@ export default function HomePage() {
       </div>
     ));
   };
+
   const [activeHomeComponent, setActiveHomeComponent] = useState("homepage");
 
   const showHomePage = () => {
@@ -187,9 +188,6 @@ export default function HomePage() {
   useEffect(() => {
     if (token) {
       const playlistId = "3IAIcHaDz290IQm92QLE55";
-      //   let token = window.localStorage.getItem("token");
-      console.log(token);
-
       axios
         .get(`https://api.spotify.com/v1/me/playlists`, {
           headers: {
@@ -219,7 +217,6 @@ export default function HomePage() {
 
   useEffect(() => {
     if (token) {
-      // Fetch the first 5 trending songs
       axios
         .get(
           "https://api.spotify.com/v1/browse/categories/toplists/playlists",
@@ -240,7 +237,6 @@ export default function HomePage() {
           console.error("Error fetching trending songs data:", error.message);
         });
 
-      // Fetch the first 5 new releases
       axios
         .get("https://api.spotify.com/v1/browse/new-releases", {
           headers: {
@@ -259,8 +255,6 @@ export default function HomePage() {
         });
     }
   }, [token]);
-
-
 
   return (
     <div className="main-container">
@@ -308,12 +302,12 @@ export default function HomePage() {
               </a>
             ) : (
               <div className="center-top-loggedin">
-                <Profile userData={userData} />
+                <Profile userData={userData} setToken={setToken} />
               </div>
             )}
           </div>
         </div>
-        <hr className="seperate" />
+        <hr className="separate" />
 
         <div className="div">
           {activeComponent === "artists" && (
@@ -322,18 +316,12 @@ export default function HomePage() {
 
           {activeComponent === "playlist" && selectedPlaylist && (
             <div>
-              <div className="playlist-selected">
-                <img
-                  src={selectedPlaylist.images[0].url}
-                  alt="Playlist Cover"
-                />
-                <div className="playlist-selected-info">
-                  <h3>{selectedPlaylist.name}</h3>
-                  <p>{selectedPlaylist.owner.display_name}</p>
-                </div>
-              </div>
               {selectedPlaylist.tracks.items.map((track) => (
-                <div key={track.track.id} className="playlist-song">
+                <div
+                  key={track.track.id}
+                  className="playlist-song"
+                  onClick={() => handleTrackClick(track)}
+                >
                   <div className="track-item">
                     <div className="track-flex1">
                       {track.track.album.images.length ? (
@@ -387,7 +375,23 @@ export default function HomePage() {
           {activeComponent === "homepage" && renderHomePage()}
         </div>
       </div>
-      <div className="right-container"></div>
+      <div className="right-container">
+        {playbackTrack && playbackTrack.track.album.images.length > 0 && (
+          <img
+            src={playbackTrack.track.album.images[0].url}
+            alt={playbackTrack.track.name}
+          />
+        )}
+
+        <SpotifyPlayer
+          token={token}
+          uris={playbackTrack ? [playbackTrack.track.uri] : []}
+          autoPlay={true}
+          callback={(state) => {
+            // Handle player state changes if needed
+          }}
+        />
+      </div>
     </div>
   );
 }

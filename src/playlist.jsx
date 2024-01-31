@@ -24,7 +24,6 @@ function Playlist({ playlist, onSelectPlaylist }) {
                 <p>{data.owner.display_name}</p>
               </div>
             </div>
-            {/* Add more playlist cards as needed */}
           </div>
         )
     })}
