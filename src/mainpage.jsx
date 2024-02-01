@@ -4,6 +4,7 @@ import axios from "axios";
 import homesvg from "./assets/homesvg.svg";
 import Profile from "./profile";
 import Playlist from "./playlist";
+import SpotifyPlayer from "./spotifyPlayer";
 
 export default function HomePage() {
   const CLIENT_ID = "9853bde8608449bf9d43e7694001d59a";
@@ -21,6 +22,7 @@ export default function HomePage() {
   const [playlistData, setPlaylistData] = useState(null);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [activeComponent, setActiveComponent] = useState("homepage");
+  const [selectedSongDetails, setSelectedSongDetails] = useState(null);
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -260,6 +262,16 @@ export default function HomePage() {
     }
   }, [token]);
 
+  const handleSelectedSongDetails = (songDetails) => {
+    setSelectedSongDetails(songDetails);
+  };
+
+  const onSongSelect = (song) => {
+    // Do something with the selected song, e.g., set it in the state
+    // or perform any other actions related to the selected song
+    console.log("Selected Song:", song);
+  };
+
 
 
   return (
@@ -387,7 +399,9 @@ export default function HomePage() {
           {activeComponent === "homepage" && renderHomePage()}
         </div>
       </div>
-      <div className="right-container"></div>
+      <div className="right-container">
+        <SpotifyPlayer onSelectedSongDetails={handleSelectedSongDetails} />
+      </div>
     </div>
   );
 }

@@ -1,136 +1,161 @@
-import React, { useState, useEffect } from 'react';
-// import HomePage from './mainpage';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
-const SpotifyPlayer = () => {
-  const CLIENT_ID = "9853bde8608449bf9d43e7694001d59a";
-  const REDIRECT_URI = "http://localhost:5173/";
-  const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
-  const RESPONSE_TYPE = "token";
-  const scope = 'playlist-read-private user-read-email playlist-read-collaborative user-read-playback-state';
-
-  const [token, setToken] = useState("");
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [selectedSongDetails, setSelectedSongDetails] = useState(null);
+const SpotifyPlayer = ({ onSelectedSongDetails }) => {
+  const [player, setPlayer] = useState(null);
+  const [deviceId, setDeviceId] = useState(null);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
 
   useEffect(() => {
-    const hash = window.location.hash;
-    let token = window.localStorage.getItem("token");
+    const fetchCurrentlyPlaying = async () => {
+      const token = window.localStorage.getItem("token");
 
-    if (!token && hash) {
-      token = hash
-        .substring(1)
-        .split("&")
-        .find((elem) => elem.startsWith("access_token"))
-        .split("=")[1];
+      if (token) {
+        try {
+          const { data } = await axios.get(
+            "https://api.spotify.com/v1/me/player/currently-playing",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
 
-      window.location.hash = "";
-      window.localStorage.setItem("token", token);
-    }
+          if (data && data.item) {
+            const { name, artists, album, duration_ms } = data.item;
+            setCurrentlyPlaying({
+              name,
+              artists,
+              album,
+              duration_ms,
+            });
+            onSelectedSongDetails({
+              name,
+              artists,
+              album,
+              duration_ms,
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching currently playing data:", error);
 
-    setToken(token);
-  }, []);
-
-  const [songs, setSongs] = useState([]);
-
-  useEffect(() => {
-    const fetchToken = async () => {
-      // Implement your server-side logic to obtain a Spotify access token
-      const response = await fetch('/api/get-spotify-token');
-      const data = await response.json();
-      setToken(data.token);
+          if (error.response && error.response.status === 429) {
+            // If rate-limited, wait for some time and then retry
+            setTimeout(() => {
+              fetchCurrentlyPlaying();
+            }, 5000); // Retry after 5 seconds
+          }
+        }
+      }
     };
 
-    fetchToken();
+    const intervalId = setInterval(() => {
+      fetchCurrentlyPlaying();
+    }, 10000); // Fetch every 10 seconds
+
+    fetchCurrentlyPlaying();
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [onSelectedSongDetails]);
+
+  useEffect(() => {
+    const initializePlayer = async () => {
+      const token = window.localStorage.getItem("token");
+
+      if (window.Spotify) {
+        const newPlayer = new window.Spotify.Player({
+          name: "Your Spotify Player",
+          getOAuthToken: (cb) => {
+            cb(token);
+          },
+        });
+
+        newPlayer.addListener("ready", () => {
+          onPlayerReady();
+          setPlayer(newPlayer);
+        });
+        newPlayer.addListener("not_ready", ({ device_id }) => {
+          console.log("Device ID has gone offline", device_id);
+        });
+
+        newPlayer.addListener("initialization_error", onConnectError);
+        newPlayer.addListener("authentication_error", onConnectError);
+        newPlayer.addListener("account_error", onConnectError);
+        newPlayer.addListener("playback_error", onConnectError);
+      }
+    };
+
+    const onPlayerReady = () => {
+      setIsPlayerReady(true);
+    };
+
+    const onConnectError = (error) => {
+      console.error("Error connecting to the player:", error);
+    };
+
+    initializePlayer();
   }, []);
 
   useEffect(() => {
-    // Simulate fetching user's playlists from Spotify after obtaining the token
-    if (token) {
-      // Fetch sample songs dynamically
-      const fetchSampleSongs = async () => {
-        const sampleSongIds = [
-          '1rDgAHDX95RmylxjgVW9tN?si=6c1c6dc4c1144430',
-          '2l2yRJWgMiJkfPbRNiuC25?si=3ff359552c094c87',
-          '5SZWCBRpEujCFwETNvfxzz?si=c6fa4373512a4482',
-          '5awDvzxWfd53SSrsRZ8pXO?si=0b523876d87e4bb8',
-        ];
-
-        const sampleSongPromises = sampleSongIds.map(async (songId) => {
-          const response = await fetch(`https://api.spotify.com/v1/tracks/${songId}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          });
-
-          if (!response.ok) {
-            throw new Error('Failed to fetch song details');
-          }
-
-          const data = await response.json();
-          return { id: songId, name: data.name };
-        });
-
-        const sampleSongData = await Promise.all(sampleSongPromises);
-        setSongs(sampleSongData);
-      };
-
-      fetchSampleSongs();
+    if (player && deviceId) {
+      player.connect();
     }
-  }, [token]);
+  }, [player, deviceId]);
 
-  const handleSongClick = async (song) => {
-    try {
-      const endpoint = `https://api.spotify.com/v1/tracks/${song.id}`;
-      const response = await fetch(endpoint, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+  const openSpotifyAuthWindow = () => {
+    // Open a new window/tab to trigger user interaction
+    window.open(
+      "https://accounts.spotify.com/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&scope=user-read-playback-state%20user-modify-playback-state&response_type=token",
+      "Spotify Auth",
+      "width=400,height=500"
+    );
+  };
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch song details');
-      }
+  const handlePause = () => {
+    if (isPlayerReady && player) {
+      openSpotifyAuthWindow();
+      player.pause().then(() => console.log("Paused playback"));
+    }
+  };
 
-      const data = await response.json();
-      console.log('Song details:', data);
-
-      // Set the selected song details, including the cover, in state
-      setSelectedSongDetails(data);
-    } catch (error) {
-      console.error('Error fetching song details:', error.message);
+  const handleResume = () => {
+    if (isPlayerReady && player) {
+      openSpotifyAuthWindow();
+      player.resume().then(() => console.log("Resumed playback"));
     }
   };
 
   return (
-    <div style={{ display: 'flex' }}>
-      {/* Container for the list of songs */}
-      <div style={{ flex: 1 }}>
-
-        
-
-        <h1>Spotify Song List</h1>
-        <ul>
-          {songs.map((song) => (
-            <li key={song.id} onClick={() => handleSongClick(song)}>
-              {song.name}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Container for the details of the selected song */}
-      <div style={{ flex: 1 }}>
-        {selectedSongDetails && (
-          <div>
-            <h2>Selected Song Details</h2>
-            <img src={selectedSongDetails.album.images[1].url} alt="Album Cover" />
-            <p>{`Song: ${selectedSongDetails.name}`}</p>
-            <p>{`Artist: ${selectedSongDetails.artists.map(artist => artist.name).join(', ')}`}</p>
+    <div className="spotify-player">
+      {currentlyPlaying && (
+        <div className="currently-playing">
+          <img
+            src={currentlyPlaying.album.images[1].url}
+            alt="Album Cover"
+            className="album-cover"
+          />
+          <div className="song-details">
+            <h3>{currentlyPlaying.name}</h3>
+            <p>
+              {currentlyPlaying.artists
+                .map((artist) => artist.name)
+                .join(", ")}
+            </p>
+            <div className="player-controls">
+              <button onClick={handlePause} disabled={!isPlayerReady}>
+                Pause
+              </button>
+              <button onClick={handleResume} disabled={!isPlayerReady}>
+                Resume
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+      {/* Your player UI or controls can be added here */}
     </div>
   );
 };
