@@ -106,19 +106,18 @@ const SpotifyPlayer = ({ onSelectedSongDetails }) => {
 
   const handleTogglePlayback = async () => {
     if (isPlayerReady && player) {
-      console.log('2');
-      console.log (player);
       const token = window.localStorage.getItem("token");
-      
-      //try {
+
+      try {
+        console.log("Trying to get playback state...");
         const playbackState = await axios.get("https://api.spotify.com/v1/me/player", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-  
-        console.log("Playback State:", playbackState);
-  
+
+        console.log("Playback State:", playbackState.data);
+
         if (playbackState.data && playbackState.data.is_playing) {
           await axios.put("https://api.spotify.com/v1/me/player/pause", {}, {
             headers: {
@@ -134,9 +133,9 @@ const SpotifyPlayer = ({ onSelectedSongDetails }) => {
           });
           console.log("Resumed playback");
         }
-      // } catch (error) {
-      //   console.error("Error getting playback state:", error);
-      // }
+      } catch (error) {
+        console.error("Error getting playback state:", error);
+      }
     }
   };
   
