@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const SpotifyPlayer = ({ onSelectedSongDetails }) => {
-  const [player, setPlayer] = useState(null);
+  const [player, setPlayer] = useState(true);
   const [deviceId, setDeviceId] = useState(null);
   const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
-  const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const [isPlayerReady, setIsPlayerReady] = useState(true);
 
   useEffect(() => {
     const fetchCurrentlyPlaying = async () => {
@@ -22,29 +22,30 @@ const SpotifyPlayer = ({ onSelectedSongDetails }) => {
             }
           );
 
-          if (data && data.item) {
+          if (data && data.is_playing && data.item) {
             const { name, artists, album, duration_ms } = data.item;
-            setCurrentlyPlaying({
+            const newSongDetails = {
               name,
               artists,
               album,
               duration_ms,
-            });
-            onSelectedSongDetails({
-              name,
-              artists,
-              album,
-              duration_ms,
-            });
+            };
+
+            // Update only if a new song is playing
+            if (!currentlyPlaying || currentlyPlaying.name !== newSongDetails.name) {
+              setCurrentlyPlaying(newSongDetails);
+              onSelectedSongDetails(newSongDetails);
+            }
           }
         } catch (error) {
           console.error("Error fetching currently playing data:", error);
 
           if (error.response && error.response.status === 429) {
             // If rate-limited, wait for some time and then retry
+            const retryAfter = error.response.headers['retry-after'] || 5;
             setTimeout(() => {
               fetchCurrentlyPlaying();
-            }, 5000); // Retry after 5 seconds
+            }, retryAfter * 1000);
           }
         }
       }
@@ -52,52 +53,14 @@ const SpotifyPlayer = ({ onSelectedSongDetails }) => {
 
     const intervalId = setInterval(() => {
       fetchCurrentlyPlaying();
-    }, 10000); // Fetch every 10 seconds
+    }, 12000); // Fetch every 12 seconds
 
     fetchCurrentlyPlaying();
 
     return () => {
       clearInterval(intervalId);
     };
-  }, [onSelectedSongDetails]);
-
-  useEffect(() => {
-    const initializePlayer = async () => {
-      const token = window.localStorage.getItem("token");
-
-      if (window.Spotify) {
-        const newPlayer = new window.Spotify.Player({
-          name: "Your Spotify Player",
-          getOAuthToken: (cb) => {
-            cb(token);
-          },
-        });
-
-        newPlayer.addListener("ready", () => {
-          onPlayerReady();
-          setPlayer(newPlayer);
-        });
-        newPlayer.addListener("not_ready", ({ device_id }) => {
-          console.log("Device ID has gone offline", device_id);
-        });
-
-        newPlayer.addListener("initialization_error", onConnectError);
-        newPlayer.addListener("authentication_error", onConnectError);
-        newPlayer.addListener("account_error", onConnectError);
-        newPlayer.addListener("playback_error", onConnectError);
-      }
-    };
-
-    const onPlayerReady = () => {
-      setIsPlayerReady(true);
-    };
-
-    const onConnectError = (error) => {
-      console.error("Error connecting to the player:", error);
-    };
-
-    initializePlayer();
-  }, []);
+  }, [onSelectedSongDetails, currentlyPlaying]);
 
   useEffect(() => {
     if (player && deviceId) {
@@ -106,28 +69,121 @@ const SpotifyPlayer = ({ onSelectedSongDetails }) => {
   }, [player, deviceId]);
 
   const openSpotifyAuthWindow = () => {
-    // Open a new window/tab to trigger user interaction
     window.open(
-      "https://accounts.spotify.com/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&scope=user-read-playback-state%20user-modify-playback-state&response_type=token",
+      "https://accounts.spotify.com/authorize?client_id=9853bde8608449bf9d43e7694001d59a&redirect_uri=http://localhost:5173/&scope=user-read-playback-state%20user-modify-playback-state&response_type=token",
       "Spotify Auth",
       "width=400,height=500"
     );
   };
 
-  const handlePause = () => {
-    if (isPlayerReady && player) {
-      openSpotifyAuthWindow();
-      player.pause().then(() => console.log("Paused playback"));
+  const initializePlayer = async () => {
+    const token = window.localStorage.getItem("token");
+
+    if (window.Spotify) {
+      const newPlayer = new window.Spotify.Player({
+        name: "Your Spotify Player",
+        getOAuthToken: (cb) => {
+          cb(token);
+        },
+      });
+
+      newPlayer.addListener("ready", () => {
+        onPlayerReady();
+        setPlayer(newPlayer);
+        setIsPlayerReady(true);
+      });
+      newPlayer.addListener("not_ready", ({ device_id }) => {
+        console.log("Device ID has gone offline", device_id);
+        setIsPlayerReady(false);
+      });
+
+      newPlayer.addListener("initialization_error", onConnectError);
+      newPlayer.addListener("authentication_error", onConnectError);
+      newPlayer.addListener("account_error", onConnectError);
+      newPlayer.addListener("playback_error", onConnectError);
     }
   };
 
-  const handleResume = () => {
+  const handleTogglePlayback = async () => {
     if (isPlayerReady && player) {
-      openSpotifyAuthWindow();
-      player.resume().then(() => console.log("Resumed playback"));
+      console.log('2');
+      console.log (player);
+      const token = window.localStorage.getItem("token");
+      
+      //try {
+        const playbackState = await axios.get("https://api.spotify.com/v1/me/player", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        console.log("Playback State:", playbackState);
+  
+        if (playbackState.data && playbackState.data.is_playing) {
+          await axios.put("https://api.spotify.com/v1/me/player/pause", {}, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          console.log("Paused playback");
+        } else {
+          await axios.put("https://api.spotify.com/v1/me/player/play", {}, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          console.log("Resumed playback");
+        }
+      // } catch (error) {
+      //   console.error("Error getting playback state:", error);
+      // }
+    }
+  };
+  
+  const handleSkipToNext = async () => {
+    if (isPlayerReady && player) {
+      const token = window.localStorage.getItem("token");
+
+      try {
+        await axios.post(
+          "https://api.spotify.com/v1/me/player/next",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log("Skipped to next track");
+      } catch (error) {
+        console.error("Error skipping to next track:", error);
+      }
     }
   };
 
+  const handleSkipToPrevious = async () => {
+    if (isPlayerReady && player) {
+      const token = window.localStorage.getItem("token");
+
+      try {
+        await axios.post(
+          "https://api.spotify.com/v1/me/player/previous",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log("Skipped to previous track");
+      } catch (error) {
+        console.error("Error skipping to previous track:", error);
+      }
+    }
+  };
+
+
+  
   return (
     <div className="spotify-player">
       {currentlyPlaying && (
@@ -145,17 +201,19 @@ const SpotifyPlayer = ({ onSelectedSongDetails }) => {
                 .join(", ")}
             </p>
             <div className="player-controls">
-              <button onClick={handlePause} disabled={!isPlayerReady}>
-                Pause
+              <button onClick={handleSkipToPrevious} disabled={!isPlayerReady}>
+                Previous
               </button>
-              <button onClick={handleResume} disabled={!isPlayerReady}>
-                Resume
+              <button onClick={handleTogglePlayback} disabled={!isPlayerReady}>
+                {currentlyPlaying.is_playing ? "Pause" : "Resume"}
+              </button>
+              <button onClick={handleSkipToNext} disabled={!isPlayerReady}>
+                Next
               </button>
             </div>
           </div>
         </div>
       )}
-      {/* Your player UI or controls can be added here */}
     </div>
   );
 };
