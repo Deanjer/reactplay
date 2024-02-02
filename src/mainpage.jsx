@@ -320,7 +320,7 @@ export default function HomePage() {
               </a>
             ) : (
               <div className="center-top-loggedin">
-                <Profile userData={userData} />
+                <Profile userData={userData} setToken={setToken} />
               </div>
             )}
           </div>
