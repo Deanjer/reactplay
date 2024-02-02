@@ -1,3 +1,12 @@
 .currently-playing img{
-    height: 100px;
+    height: 400px;
+    border-radius: 10px;
+}
+
+.currently-playing p{
+    color: #cad2c5b9;
+}
+
+.currently-playing{
+    color: #ffff;
 }
