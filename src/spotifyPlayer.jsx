@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import "./spotifyPlayer.css";
 import axios from "axios";
 
 const SpotifyPlayer = ({ onSelectedSongDetails }) => {
