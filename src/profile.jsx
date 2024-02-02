@@ -37,7 +37,7 @@ export default function Profile({ userData, setToken }) {
               Email: <span className="dropdown-content">{userData?.email}</span>
             </li>
             <hr />
-            <li><button className="logout" onClick={logout}>
+            <li className="dropdown-content"><button className="logout" onClick={logout}>
                   Logout
                 </button></li>
                 
