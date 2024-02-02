@@ -200,17 +200,7 @@ const SpotifyPlayer = ({ onSelectedSongDetails }) => {
                 .map((artist) => artist.name)
                 .join(", ")}
             </p>
-            <div className="player-controls">
-              <button onClick={handleSkipToPrevious} disabled={!isPlayerReady}>
-                Previous
-              </button>
-              <button onClick={handleTogglePlayback} disabled={!isPlayerReady}>
-                {currentlyPlaying.is_playing ? "Pause" : "Resume"}
-              </button>
-              <button onClick={handleSkipToNext} disabled={!isPlayerReady}>
-                Next
-              </button>
-            </div>
+            
           </div>
         </div>
       )}
