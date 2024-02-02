@@ -161,12 +161,11 @@ export default function HomePage() {
 
   const renderHomePage = () => (
     <div className="homepage">
-
       {/* Trending */}
       <h3>Trending playlists</h3>
       <div className="home-flex">
         {trendingSongs.map((playlist) => (
-          <div className="home-container" key={playlist.id}>
+          <div className="home-container" key={`trending_${playlist.id}`}>
             <img src={playlist.images[0].url} alt={playlist.name} />
             <p>{playlist.name}</p>
           </div>
@@ -177,7 +176,7 @@ export default function HomePage() {
       <h3>New Releases</h3>
       <div className="home-flex">
         {newReleases.map((album) => (
-          <div className="home-container" key={album.id}>
+          <div className="home-container" key={`newRelease_${album.id}`}>
             <img src={album.images[0].url} alt={album.name} />
             <p>{album.name}</p>
           </div>
@@ -267,9 +266,8 @@ export default function HomePage() {
   };
 
   const onSongSelect = (song) => {
-    // Do something with the selected song, e.g., set it in the state
-    // or perform any other actions related to the selected song
-    console.log("Selected Song:", song);
+    // Update the currently playing song in the SpotifyPlayer component
+    setSelectedSongDetails(song);
   };
 
 
@@ -345,7 +343,11 @@ export default function HomePage() {
                 </div>
               </div>
               {selectedPlaylist.tracks.items.map((track) => (
-                <div key={track.track.id} className="playlist-song">
+                <div
+                  key={track.track.id}
+                  className="playlist-song"
+                  onClick={() => onSongSelect(track.track)}
+                >
                   <div className="track-item">
                     <div className="track-flex1">
                       {track.track.album.images.length ? (

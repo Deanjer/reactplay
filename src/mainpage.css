@@ -365,11 +365,16 @@ transform: translate(-50%, -50%); */
 .playlist-song {
     height: auto;
     padding: 10px;
-    width: 90%;
+    width: 100%;
     display: flex;
     color: #ffff;
+    box-sizing: border-box;
 }
-
+.playlist-song:hover{
+    background-color: #22292d6d;
+    border-radius: 5px;
+    cursor: pointer;
+}
 .playlist-song img {
     width: 50px;
     height: 50px;
@@ -382,10 +387,14 @@ transform: translate(-50%, -50%); */
     justify-content: space-between;
 }
 
-.track-flex1,
-.track-flex3,
-.track-flex4 {
-    width: 33%;
+.track-flex1{
+    width: 45%;
+}
+.track-flex3{
+width: 40%;
+}
+.track-flex4{
+    width: 15%;
 }
 
 .track-flex2 {
@@ -397,6 +406,11 @@ transform: translate(-50%, -50%); */
     display: flex;
     justify-content: flex-end;
 }
+.track-flex3 p {
+    text-align: left;
+    margin-right: auto;
+}
+
 
 .track-info {
     display: flex;
