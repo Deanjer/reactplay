@@ -9,9 +9,12 @@ export default function Profile({ userData, setToken }) {
   };
 
   const logout = () => {
-    setToken("");
-    window.localStorage.removeItem("token");
+    if (setToken) {
+      setToken("");
+      window.localStorage.removeItem("token");
+    }
   };
+  
 
   return (
     <div className="profile-container">

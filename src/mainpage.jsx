@@ -7,7 +7,7 @@ import Playlist from "./playlist";
 import SpotifyPlayer from "./spotifyPlayer";
 
 export default function HomePage() {
-  const CLIENT_ID = "9853bde8608449bf9d43e7694001d59a";
+  const CLIENT_ID = "ecd7c0f4d62640d2b213d9cf4137c85f";
   const REDIRECT_URI = "http://localhost:5173/";
   const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
   const RESPONSE_TYPE = "token";
